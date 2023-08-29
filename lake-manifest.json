@@ -10,9 +10,17 @@
     "inputRev?": "v0.0.13",
     "inherited": true}},
   {"git":
+   {"url": "https://github.com/0art0/lean-slides",
+    "subDir?": null,
+    "rev": "df2f4ce3b3d798b51cdfcdbe7bbab1d4d5decaa4",
+    "opts": {},
+    "name": "lean_slides",
+    "inputRev?": null,
+    "inherited": false}},
+  {"git":
    {"url": "https://github.com/mhuisi/lean4-cli.git",
     "subDir?": null,
-    "rev": "5a858c32963b6b19be0d477a30a1f4b6c120be7e",
+    "rev": "b25b443cbe9b47a8cb10a7b515e27cffd13c5cfd",
     "opts": {},
     "name": "Cli",
     "inputRev?": "nightly",
@@ -20,7 +28,7 @@
   {"git":
    {"url": "https://github.com/leanprover-community/mathlib4.git",
     "subDir?": null,
-    "rev": "af00132509c0902eaf543d2a98818f1d2ebeb465",
+    "rev": "b9d6ccb61a810dec9a6f25c4588535ca956add8f",
     "opts": {},
     "name": "mathlib",
     "inputRev?": null,
