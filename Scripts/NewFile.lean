@@ -1,6 +1,6 @@
 import Lean
 
-def template (nm : String) : String := s!"import LeanSlides
+def template (nm : String) : String := s!"import FormalizationOfMathematics.Init
 
 #set_pandoc_options \"-V\" \"theme=white\"
 

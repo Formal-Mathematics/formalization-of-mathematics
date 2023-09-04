@@ -1,1 +1,1 @@
-import FormalizationOfMathematics.Intro
+import FormalizationOfMathematics.Basic
