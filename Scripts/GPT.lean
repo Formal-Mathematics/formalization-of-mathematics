@@ -1,4 +1,5 @@
 import Lean
+import Mathlib.Tactic
 
 open Lean
 
