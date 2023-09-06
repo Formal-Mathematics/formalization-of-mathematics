@@ -52,11 +52,10 @@ def Nat.inverseMod (a m : Nat) : Nat :=
   if a.gcd m != 1 then 0 else ((a.xgcd m).fst % m).natAbs
 
 def main (args : List String) : IO Unit := do
-  let some cmd := args[0]? | throw <| .userError "Usage: crypt (d/e) password text"
-  let some password := args[1]? | throw <| .userError "Usage: crypt (d/e) password text"
-  let some text := args[2]? | throw <| .userError "Usage: crypt (d/e) password text"
+  let some cmd := args[0]? | throw <| .userError "Usage: crypt (d/e) 'password' 'text'"
+  let some password := args[1]? | throw <| .userError "Usage: crypt (d/e) 'password' 'text'"
+  let some text := args[2]? | throw <| .userError "Usage: crypt (d/e) 'password' 'text'"
   let text : Fin MODULUS := .ofNat <| text.encode % MODULUS
-  IO.println text
   let key := 
     if cmd == "e" 
     then password.encode % (MODULUS - 1)  
