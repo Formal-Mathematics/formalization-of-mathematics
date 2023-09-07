@@ -1,5 +1,6 @@
-import FormalizationOfMathematics.Init
-import Mathlib -- Mathlib is Lean4's formalized mathematics library
+import Mathlib.Data.Nat.Basic -- Mathlib is Lean4's formalized mathematics library
+import Mathlib.Data.Rat.Basic 
+import Mathlib.Data.Matrix.Notation 
 
 
 #check ℕ  

@@ -1,5 +1,6 @@
-import FormalizationOfMathematics.Init
-import Mathlib
+import Mathlib.Data.Nat.Basic -- Mathlib is Lean4's formalized mathematics library
+import Mathlib.Data.Rat.Basic 
+import Mathlib.Data.Matrix.Notation 
 
 --#set_pandoc_options "-V" "theme=dark"
 --#clear_pandoc_options
@@ -14,7 +15,6 @@ import Mathlib
 #check ℕ
 #check ℤ
 #check ℚ
-#check ℝ
 
 #check ℕ × ℤ  
 #check ℕ → ℤ
