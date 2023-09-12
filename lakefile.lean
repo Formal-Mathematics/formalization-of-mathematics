@@ -20,6 +20,3 @@ lean_lib «FormalizationOfMathematics» {
 lean_exe new_file where
   root := `Scripts.NewFile
 
-@[default_target]
-lean_exe crypt where
-  root := `Scripts.Crypt
