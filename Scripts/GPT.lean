@@ -64,28 +64,6 @@ def getResponse (msgs : Array Message) : IO GPT.Message := do
  
 end GPT
 
-/-
-def checkSuggestion (s: String) : Lean.Elab.Tactic.TacticM CheckResult := do
-  withoutModifyingState do
-  try
-    match Parser.runParserCategory (← getEnv) `tactic s with
-      | Except.ok stx =>
-        try
-          _ ← Lean.Elab.Tactic.evalTactic stx
-          let goals ← Lean.Elab.Tactic.getUnsolvedGoals
-          if (← getThe Core.State).messages.hasErrors then
-            pure CheckResult.Invalid
-          else if goals.isEmpty then
-            pure CheckResult.ProofDone
-          else
-            pure CheckResult.Valid
-        catch _ =>
-          pure CheckResult.Invalid
-      | Except.error _ =>
-        pure CheckResult.Invalid
-    catch _ => pure CheckResult.Invalid
--/
-
 open Lean Elab Tactic Meta in
 elab "help!?" : tactic => do 
   let goalState ← ppGoal (← getMainGoal)
