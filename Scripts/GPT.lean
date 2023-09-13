@@ -1,5 +1,6 @@
 import Lean
 import Mathlib.Tactic
+import Std.Tactic.TryThis
 
 open Lean
 
@@ -62,3 +63,56 @@ def getResponse (msgs : Array Message) : IO GPT.Message := do
   return msg
  
 end GPT
+
+/-
+def checkSuggestion (s: String) : Lean.Elab.Tactic.TacticM CheckResult := do
+  withoutModifyingState do
+  try
+    match Parser.runParserCategory (← getEnv) `tactic s with
+      | Except.ok stx =>
+        try
+          _ ← Lean.Elab.Tactic.evalTactic stx
+          let goals ← Lean.Elab.Tactic.getUnsolvedGoals
+          if (← getThe Core.State).messages.hasErrors then
+            pure CheckResult.Invalid
+          else if goals.isEmpty then
+            pure CheckResult.ProofDone
+          else
+            pure CheckResult.Valid
+        catch _ =>
+          pure CheckResult.Invalid
+      | Except.error _ =>
+        pure CheckResult.Invalid
+    catch _ => pure CheckResult.Invalid
+-/
+
+open Lean Elab Tactic Meta in
+elab "help!?" : tactic => do 
+  let goalState ← ppGoal (← getMainGoal)
+  let res ← GPT.getResponse #[
+    {
+      role := .system
+      content := "You are an expert mathematician and an expert with the Lean4 interactive proof assistatnt.
+The user will provide you with their current goal state, which includes the goal context and the goal itself.
+Your task is to provide the next tactic. 
+Don't add any other text, just the tactic.
+Remember that this is Lean4, not Lean3, so:
+1. Tactics do not end with a comma or a period.
+2. rewrite have the following syntax `rw [h1, h2, ...]`
+
+If you are unsure about what tactic to provide next, but you have an idea for what the user should do, then say:
+
+\"[IDEA] Put your idea here.\"
+"
+    },
+    {
+      role := .user
+      content := toString goalState
+    }
+  ] 
+  let res := res.content
+  match Parser.runParserCategory (← getEnv) `tactic res with
+  | .ok stx => 
+    Std.Tactic.TryThis.addSuggestion (← getRef) (⟨stx⟩ : TSyntax `tactic)
+  | .error _ => 
+    logInfoAt (← getRef) m!"{res}"
