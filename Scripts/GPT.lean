@@ -62,3 +62,28 @@ def getResponse (msgs : Array Message) : IO GPT.Message := do
   return msg
  
 end GPT
+
+open Lean Elab Meta Tactic in
+elab "help_GPT" : tactic => do
+  let goalState ← Meta.ppGoal (← getMainGoal)
+  let systemMessage : GPT.Message := {
+    role := .system
+    content := "You are an expert mathematician who is also an expert in the Lean3 interactive proof assistant.
+The user will provide you with their current goal state, which includes the current context and the current goal.
+Your task is to provide the next tactic step which will make progress towards solving the goal.
+
+You should only provide the tactic step and no other text.
+Remember that you are using Lean3, and tactics do not end with a comma."
+  }
+  let userMessage : GPT.Message := {
+    role := .user
+    content := toString goalState
+  }
+  let response ← GPT.getResponse #[systemMessage, userMessage]
+  let response := response.content
+  let parsedTactic := Parser.runParserCategory (← getEnv) `tactic response
+  match parsedTactic with 
+    | .ok stx => 
+      Std.Tactic.TryThis.addSuggestion (← getRef) (⟨stx⟩ : TSyntax `tactic)
+    | .error _ => logInfoAt (← getRef) response
+

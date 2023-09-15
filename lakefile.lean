@@ -17,6 +17,11 @@ lean_lib «FormalizationOfMathematics» {
 }
 
 @[default_target]
+lean_lib «Scripts» {
+
+}
+
+@[default_target]
 lean_exe new_file where
   root := `Scripts.NewFile
 
