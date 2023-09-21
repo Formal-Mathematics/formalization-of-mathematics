@@ -1,4 +1,5 @@
 import Mathlib.Tactic
+import Mathlib.Data.Real.Basic
 import Scripts.GPT
 -- Structures
 
@@ -110,9 +111,29 @@ example (n m : ℕ) (h : m < n) : Fin' n :=
 example : Monoid' ℕ := 
   ⟨(· + ·), 0, add_assoc, zero_add, add_zero⟩ 
 
+
 /-!
 Next time:
 1. Implicit variables `{x : X}` (`⦃x : X⦄`)
 2. Typeclass parameters `[Group G]` `[Monoid G]`, etc., and the typeclass system.
 3. Inductive types, like ℕ, Lists, etc. 
 -/
+
+/- 2023-09-21-/
+
+structure PointInThePlane where
+  x : ℝ 
+  y : ℝ 
+
+#check PointInThePlane
+
+variable (p : PointInThePlane)
+
+#check @PointInThePlane.x
+
+#check PointInThePlane.x p
+#check p.x
+#check p.y
+
+#check MonoidType.M
+#check @MonoidType.op
