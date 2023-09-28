@@ -142,3 +142,73 @@ end
 
 #check Quot
 #check Quotient
+#check Setoid
+
+section
+
+variable (α : Type) (r : α → α → Prop)
+
+#check Quot r
+
+/-!
+
+r : α → α → Prop   
+
+α ---- f ----> β  
+|              |
+|              =
+|              |
+v              v
+Quot r ------> β  <<<--- This is goin to be `Quot.lift f h` where `h` is a proof
+                        that the function `f` is "compatible" with `r`.
+
+-/
+
+example (β : Type) (f : α → β) (h : ∀ x y : α, r x y → f x = f y) :
+    Quot r → β :=  
+  Quot.lift f h
+
+example : α → Quot r := 
+  Quot.mk r 
+
+example (β : Type) (f : α → β) (h : ∀ x y : α, r x y → f x = f y) (a : α) :
+    Quot.lift f h (Quot.mk r a) = f a := 
+  rfl
+
+example (x y : α) (h : r x y) : Quot.mk r x = Quot.mk r y := 
+  Quot.sound h
+
+example (x y : α) (h : Quot.mk r x = Quot.mk r y) : EqvGen r x y := 
+  Quot.exact r h
+
+def Foo := Quot (fun x y : ℕ => x + y = 3)
+def π : ℕ → Foo := Quot.mk _  
+
+example : π 1 = π 2 := Quot.sound rfl  
+
+end 
+
+section
+/- Quotient -/
+
+variable (α : Type) (S : Setoid α)
+
+example : Type := Quotient S
+
+example (β : Type) (f : α → β) (h : ∀ x y : α, S.r x y → f x = f y) :
+    Quotient S → β :=  
+  Quotient.lift f h
+
+example : α → Quotient S := Quotient.mk _ 
+
+ example (β : Type) (f : α → β) (h : ∀ x y : α, S.r x y → f x = f y) (a : α) :
+    Quotient.lift f h (Quotient.mk _ a) = f a := 
+  rfl
+
+example (x y : α) (h : S.r x y) : Quotient.mk S x = Quotient.mk S y := 
+  Quotient.sound h
+
+example (x y : α) (h : Quotient.mk S x = Quotient.mk S y) : S.r x y := 
+  Quotient.exact h
+
+end
