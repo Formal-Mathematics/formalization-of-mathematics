@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+tred classes.dot | dot -y -T pdf > classes.pdf
