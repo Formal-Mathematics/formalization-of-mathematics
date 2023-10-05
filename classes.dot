@@ -1,4 +1,5 @@
 digraph "instance_graph" {
+  size="30,30";
   "ConditionallyCompleteLinearOrderedField" -> "InfSet";
   "ConditionallyCompleteLinearOrderedField" -> "SupSet";
   "ConditionallyCompleteLinearOrderedField" -> "Sup";

@@ -8,7 +8,7 @@ open Lean Meta Elab Command
   Example: `asStyledDotGraph #[("", graph1), ("style=dashed", graph2)]` -/
 def asStyledDotGraph [ForIn Id α Name] (graphs : Array (String × NameMap α))
     (header := "import_graph") : String := Id.run do
-  let mut lines := #[s!"digraph \"{header}\" " ++ "{"]
+  let mut lines := #[s!"digraph \"{header}\" " ++ "{", "  size=\"30,30\";"]
   for (style, graph) in graphs do
     let label := if style == "" then "" else s!" [{style}]"
     for (n, is) in graph do
