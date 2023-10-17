@@ -121,3 +121,52 @@ example (x y z : F) [Field F] (h₁ : z ≠ 0) (h₂ : 1 - z ≠ 0):
     (x + y/z) + x * z/(1 - z) = (x - y)/(1-z) + y/(z * (1-z)) := by
   field_simp
   ring
+
+example (G : Type*) [Group G] (a b c d : G) (h : b * c = d⁻¹) :
+    a * b * c * d = a := by
+  calc a * b * c * d = (a * (b * c)) * d := by simp only [mul_assoc]
+  _ = a * d⁻¹ * d := by rw [h]
+  _ = a * (d⁻¹ * d) := by rw [mul_assoc]
+  _ = a * 1 := by simp
+  _ = a := by simp
+
+example (G : Type*) [Group G] (a b c d : G) (h : b * c = d⁻¹) :
+    a * b * c * d = a := by
+  conv =>
+   enter [1, 1]
+   rw [mul_assoc]
+  conv =>
+   enter [1, 1, 2]
+   rw [h]
+  rw [mul_assoc]
+  conv =>
+   enter [1, 2]
+   simp
+  simp
+
+example (G : Type*) [Group G] (a b c d : G) (h : b * c = d⁻¹) :
+    a * b * c * d = a := by
+  rw [mul_assoc a]
+  have : a * (b * c) * d = a * d⁻¹ * d := by rw [h]
+  rw [this]
+  simp
+
+#check (show Nat from 1 + 1)
+#check (show Nat by exact 1 + 1)
+#check (show 1 + 2 = 3 by rfl)
+
+example (G : Type*) [Group G] (a b c d : G) (h : b * c = d⁻¹) :
+    a * b * c * d = a := by
+  rw [mul_assoc a]
+  suffices h' : b * c * d = 1 by
+    rw [mul_assoc, h', mul_one]
+  simp [h]
+
+example (G : Type*) [Group G] (a b c d : G) (h : b * c = d⁻¹) :
+    a * b * c * d = a := by
+  rw [mul_assoc a]
+  suffices a = a * d⁻¹ * d by 
+    nth_rewrite 2 [this] 
+    congrm a * ?_ * d
+    exact h
+  simp
