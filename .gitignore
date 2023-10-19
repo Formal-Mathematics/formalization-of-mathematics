@@ -2,3 +2,4 @@
 /lake-packages/*
 /slides/*
 /md/*
+*.olean
