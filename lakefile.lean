@@ -10,7 +10,7 @@ require mathlib from git
 
 @[default_target]
 lean_lib «FormalizationOfMathematics» {
-  -- add any library configuration options here
+  globs := #[.andSubmodules `FormalizationOfMathematics] -- add any library configuration options here
 }
 
 @[default_target]
