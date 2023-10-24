@@ -72,6 +72,10 @@ lemma Submonoid'.mul_mem {H : Submonoid' M} (x y : M)
     (hx : x ∈ H) (hy : y ∈ H) : x * y ∈ H :=
   H.mul_mem' _ _ hx hy
 
+@[simp]
+lemma Submonoid'.mem_coe (H : Submonoid' M) (m : M) :
+  m ∈ H.carrier ↔ m ∈ H := Iff.rfl
+
 #check Membership
 lemma Submonoid'.property {H : Submonoid' M} (h : H) : ↑h ∈ H :=
   h.2
@@ -207,19 +211,103 @@ def MonoidHom.range' {A B : Type*} [Monoid A] [Monoid B] (f : A →* B) :
 
 /-! The order structure on subobjects -/
 
+#synth (PartialOrder (Submonoid' M))
+
 instance : InfSet (Submonoid' M) where
   sInf S := {
     carrier := sInf (Submonoid'.carrier '' S)
-    one_mem' := sorry
-    mul_mem' := sorry
+    one_mem' := by
+      simp only [Set.sInf_eq_sInter, Set.sInter_image, Set.mem_iInter]
+      intro H _
+      apply H.one_mem
+    mul_mem' := by
+      intro x y hx hy
+      simp only [Set.sInf_eq_sInter, Set.sInter_image, Set.mem_iInter, Submonoid'.mem_coe] at hx hy ⊢
+      intro H hH
+      apply H.mul_mem
+      · specialize hx H hH ; exact hx -- forward reasoning
+      · apply hy ; assumption -- backward reasoning
   }
 
+@[simp]
+lemma Submonoid'.mem_sInf (S : Set (Submonoid' M)) (m : M) :
+    (m ∈ sInf S) ↔ (∀ H : Submonoid' M, H ∈ S → m ∈ H) := by
+  change m ∈ sInf (Submonoid'.carrier '' S) ↔ _
+  simp
+
+  --show m ∈ sInf (Submonoid'.carrier '' S) ↔ _ by simp
+
 instance : CompleteLattice (Submonoid' M) :=
-  completeLatticeOfInf (Submonoid' M) <| by
-    intro S
-    dsimp [IsGLB, IsGreatest]
-    refine ⟨?_, ?_⟩
-    · dsimp [lowerBounds]
-      intro A hA x hx
-      sorry
-    · sorry
+  completeLatticeOfInf _ <| by
+    intro S -- the goal here is a conjunction, use the `constructor` tactic.
+    constructor
+    · intro H hH x hx
+      simp only [Submonoid'.mem_sInf] at hx
+      apply hx
+      assumption
+    · intro H hH x hx
+      dsimp [lowerBounds] at hH
+      simp only [Submonoid'.mem_sInf]
+      intro L hL
+      apply hH
+      assumption'
+
+/-!
+Next goal: Define a Galois insertion between `Submonoid' M` and `Set M`.
+-/
+
+def Submonoid'.closure (S : Set M) : Submonoid' M :=
+  sInf { H | S ≤ H }
+
+lemma Submonoid'.closure_induction {motive : M → Prop} {S : Set M}
+    (m : M) (hm : m ∈ Submonoid'.closure S)
+    (hS : ∀ s, s ∈ S → motive s)
+    (hone : motive 1)
+    (hmul : ∀ a b : M, motive a → motive b → motive (a * b)) :
+    motive m := by
+  let H : Submonoid' M := {
+    carrier := { m | motive m }
+    one_mem' := hone
+    mul_mem' := hmul
+  }
+  have hH : closure S ≤ H := by
+    intro x hx
+    dsimp [closure] at hx
+    simp only [mem_sInf, Set.mem_setOf_eq] at hx
+    apply hx
+    intro y hy
+    apply hS
+    exact hy
+  change m ∈ H
+  apply hH
+  exact hm
+
+variable (L : Type*) [Monoid L]
+
+#check @Submonoid'.carrier M _
+#check Submonoid'.carrier (M := L)
+
+variable (M) in
+lemma Submonoid'.gc : GaloisConnection Submonoid'.closure (Submonoid'.carrier (M := M)) := by
+  intro A B
+  refine ⟨fun h => ?_, fun h => ?_⟩
+  · intro x hx
+    simp only [mem_coe]
+    apply h
+    dsimp [closure]
+    simp only [mem_sInf, Set.mem_setOf_eq]
+    intro H hH
+    apply hH
+    assumption
+  · intro x hx
+    dsimp [closure] at hx
+    simp only [mem_sInf, Set.mem_setOf_eq] at hx
+    apply hx
+    exact h
+
+variable (M) in
+def Submonoid'.gi : GaloisInsertion Submonoid'.closure (Submonoid'.carrier (M := M)) where
+  choice S _ := Submonoid'.closure S
+  gc := Submonoid'.gc M
+  le_l_u := sorry
+  choice_eq S hS := rfl
