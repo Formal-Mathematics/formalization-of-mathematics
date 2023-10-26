@@ -309,5 +309,12 @@ variable (M) in
 def Submonoid'.gi : GaloisInsertion Submonoid'.closure (Submonoid'.carrier (M := M)) where
   choice S _ := Submonoid'.closure S
   gc := Submonoid'.gc M
-  le_l_u := sorry
+  le_l_u := by
+    intro H x hx
+    dsimp [closure]
+    simp only [mem_sInf, Set.mem_setOf_eq]
+    intro A hA
+    apply hA
+    exact hx
+    --assumption
   choice_eq S hS := rfl
