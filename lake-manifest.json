@@ -10,6 +10,14 @@
     "inputRev?": null,
     "inherited": false}},
   {"git":
+   {"url": "https://github.com/adamtopaz/lean_find_with_gpt.git",
+    "subDir?": null,
+    "rev": "f520850a1a9b255ae7016849d3233a27328bc0c6",
+    "opts": {},
+    "name": "find_with_gpt",
+    "inputRev?": null,
+    "inherited": false}},
+  {"git":
    {"url": "https://github.com/leanprover/std4",
     "subDir?": null,
     "rev": "fb56324020c8e4f3d451e8901b290dea82c072ae",
