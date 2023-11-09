@@ -1,5 +1,5 @@
 --import Mathlib.Algebra.Hom.Group.Defs
-import Mathlib.Algebra.Hom.Equiv.Basic
+import Mathlib.Algebra.Group.Equiv.Basic
 
 variable (A B C : Type*) [Monoid A] [Monoid B] [Monoid C]
 
@@ -14,8 +14,8 @@ variable (f : A →* B)
 
 #check Equiv
 
-example (α β : Type*) : Type _ := Equiv α β 
-example (α β : Type*) : Type _ := α ≃ β 
+example (α β : Type*) : Type _ := Equiv α β
+example (α β : Type*) : Type _ := α ≃ β
 
 #check MulEquiv
 #check A ≃* B
@@ -25,10 +25,10 @@ example : A ≃* A := .refl A
 example (f : A ≃* B) (g : B ≃* C) : A ≃* C := f.trans g
 
 example (f : A ≃* B) : A →* B := f.toMonoidHom
-example (f : A ≃* B) (g : B ≃* C) : C →* A := 
+example (f : A ≃* B) (g : B ≃* C) : C →* A :=
   MulEquiv.toMonoidHom <| g.symm.trans f.symm
 
-example (f : A →* C) (g : B ≃* C) : A →* B := 
+example (f : A →* C) (g : B ≃* C) : A →* B :=
   g.symm.toMonoidHom.comp f
 
 #check MulEquivClass
