@@ -92,3 +92,9 @@ def YonedaLemma (X : C) (G : Cᵒᵖ ⥤ Type v) :
     ext T g : 3
     simpa using congr_fun (η.naturality g.op) (𝟙 _) |>.symm
   right_inv ξ := by simp
+
+/-!
+Exercises:
+1. Prove that `YonedaLemma` is natural in `X`.
+2. Prove that `YonedaLemma` is natural in `G`.
+-/
