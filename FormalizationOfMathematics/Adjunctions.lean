@@ -56,6 +56,9 @@ instance : ConcreteCategory.{u} MonoidCat.{u} where
       exact congr_fun h x
   }
 
+instance (M : MonoidCat.{u}) : Monoid ((forget MonoidCat).obj M) :=
+  inferInstanceAs (Monoid M)
+
 example : MonoidCat.{u} ⥤ Type u := forget MonoidCat
 
 /-!
@@ -92,53 +95,133 @@ def FreeMonoid := Quotient (FreeMonoidSetoid X)
 
 instance : Monoid (FreeMonoid X) where
   mul := Quotient.lift₂
-    (fun x y => .mk _ <| x * y)
-    sorry
-  mul_assoc := sorry
+    (fun x y => .mk _ <| x * y) <| by
+      intro a₁ a₂ b₁ b₂ h₁ h₂
+      apply Quotient.sound
+      apply Rels.mul_compat
+      assumption'
+  mul_assoc := by
+    rintro ⟨⟩ ⟨⟩ ⟨⟩
+    apply Quotient.sound
+    apply Rels.mul_assoc
   one := Quotient.mk _ 1
-  one_mul := sorry
-  mul_one := sorry
+  one_mul := by
+    rintro ⟨⟩
+    apply Quotient.sound
+    apply Rels.one_mul
+  mul_one := by
+    rintro ⟨⟩
+    apply Quotient.sound
+    apply Rels.mul_one
 
-def FreeMonoid.preLift (M : Type u) [Monoid M] (f : X ⟶ M) :
+def FreeMonoid.preLift (M : Type u) [Monoid M] (f : X → M) :
     Reps X → M
   | .of x => f x
   | .one => 1
   | .mul a b => FreeMonoid.preLift _ f a * FreeMonoid.preLift _ f b
 
+@[simp]
+lemma FreeMonoid.preLift_mul {M : Type u} [Monoid M] (f : X → M)
+    (x y : Reps X) : preLift _ _ f (x * y) = preLift _ _ f x * preLift _ _ f y := rfl
+
+@[simp]
+lemma FreeMonoid.preLift_one {M : Type u} [Monoid M] (f : X → M) :
+  preLift _ _ f 1 = 1 := rfl
+
+@[simp]
+lemma FreeMonoid.preLift_of {M : Type u} [Monoid M] (f : X → M) (x : X) :
+  preLift _ _ f (.of x) = f x := rfl
+
+
 def FreeMonoid.liftFun (M : Type u) [Monoid M] (f : X → M) :
     FreeMonoid X → M :=
   Quotient.lift
-    (FreeMonoid.preLift _ _ f)
-    sorry
+    (FreeMonoid.preLift _ _ f) <| by
+      intro a b h
+      induction h with
+      | mul_assoc x y z => simp [mul_assoc]
+      | mul_one x => simp
+      | one_mul x => simp
+      | mul_compat x x' y y' _ _ h1 h2 => simp [h1,h2]
+      | rfl x => rfl
+      | symm _ h => exact h.symm
+      | trans _ _ h1 h2 => exact h1.trans h2
 
 def FreeMonoid.lift (M : Type u) [Monoid M] (f : X → M) :
     FreeMonoid X →* M where
   toFun := FreeMonoid.liftFun _ _ f
-  map_one' := sorry
-  map_mul' := sorry
+  map_one' := rfl
+  map_mul' := by rintro ⟨x⟩ ⟨y⟩ ; rfl
 
 def FreeMonoid.incl : X → FreeMonoid X :=
   fun x => Quotient.mk _ <| .of x
 
 lemma FreeMonoid.incl_lift (M : Type u) [Monoid M] (f : X → M) :
-    FreeMonoid.lift X _ f ∘ (FreeMonoid.incl X) = f := sorry
+    FreeMonoid.lift X _ f ∘ (FreeMonoid.incl X) = f := rfl
 
-lemma FreeMonoid.hom_ext (M : Type u) [Monoid M] (f g : FreeMonoid X ⟶ M)
-    (h : f ∘ FreeMonoid.incl X = g ∘ FreeMonoid.incl X) : f = g :=
+lemma FreeMonoid.hom_ext (M : Type u) [Monoid M] (f g : FreeMonoid X →* M)
+    (h : f ∘ FreeMonoid.incl X = g ∘ FreeMonoid.incl X) : f = g := by
+  sorry
+
+lemma FreeMonoid.lift_comp_incl
+    (X : Type u) (M : Type u) [Monoid M] (f : FreeMonoid X →* M) :
+    FreeMonoid.lift _ _ (f ∘ FreeMonoid.incl _) = f := by
+  apply FreeMonoid.hom_ext
+  rw [incl_lift]
+
+lemma FreeMonoid.lift_comp {X X' Y : Type u} [Monoid Y] (f : X → X') (g : X' → Y) :
+    lift _ _ (g ∘ f) = (lift X' Y g).comp (lift X (FreeMonoid X') (incl _ ∘ f)) := by
+  apply FreeMonoid.hom_ext
+  dsimp
+  rw [incl_lift, Function.comp.assoc, incl_lift, ← Function.comp.assoc, incl_lift]
+
+lemma FreeMonoid.comp_comp_incl {X Y Y' : Type u} [Monoid Y] [Monoid Y']
+    (f : FreeMonoid X →* Y) (g : Y →* Y') :
+    (g ∘ f) ∘ incl X = g ∘ f ∘ incl X := rfl
+
+lemma FreeMonoid.lift_incl {X : Type u} :
+    lift _ _ (incl X) = .id _ := by
+  apply FreeMonoid.hom_ext
+  rfl
+
+lemma FreeMonoid.lift_comp' {X Y Z : Type u} (f : X → Y) (g : Y → Z) :
+    lift _ _ (incl Z ∘ g ∘ f) = (lift _ _ (incl _ ∘ g)).comp (lift _ _ (incl _ ∘ f)) := by
+  apply FreeMonoid.hom_ext
+  dsimp
+  rw [Function.comp.assoc]
   sorry
 
 end
 
+@[simps]
 def MonoidCat.free : Type u ⥤ MonoidCat.{u} where
   obj X := MonoidCat.of <| FreeMonoid X
   map {X Y} f := FreeMonoid.lift _ _ <| FreeMonoid.incl _ ∘ f
-  map_id := sorry
-  map_comp := sorry
+  map_id := by
+    intro X
+    apply FreeMonoid.lift_incl
+  map_comp := by
+    intro X Y Z f g
+    apply FreeMonoid.lift_comp'
+
+@[simps]
+def MonoidCat.adjEquiv (X : Type u) (M : MonoidCat.{u}) :
+    (free.obj X ⟶ Y) ≃ (X ⟶ (forget MonoidCat).obj Y) where
+  toFun f :=
+    letI f : free.obj X →* Y := f
+    f ∘ FreeMonoid.incl _
+  invFun f := FreeMonoid.lift _ _ f
+  left_inv _ := FreeMonoid.lift_comp_incl ..
+  right_inv _ := FreeMonoid.incl_lift ..
 
 def MonoidCat.coreHomEquiv : Adjunction.CoreHomEquiv free (forget MonoidCat) where
-  homEquiv := sorry
-  homEquiv_naturality_left_symm := sorry
-  homEquiv_naturality_right := sorry
+  homEquiv X M := adjEquiv X M
+  homEquiv_naturality_left_symm := by
+    intro X X' Y f g
+    apply FreeMonoid.lift_comp
+  homEquiv_naturality_right := by
+    intro X Y Y' f g
+    apply FreeMonoid.comp_comp_incl
 
 def MonoidCat.freeAdj : MonoidCat.free.{u} ⊣ forget MonoidCat.{u} :=
   Adjunction.mkOfHomEquiv coreHomEquiv
