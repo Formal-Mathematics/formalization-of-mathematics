@@ -116,7 +116,7 @@ instance (X : Type u) [PartialOrder X] : SmallCategory X where
   assoc := by intros ; rfl
 -/
 
-variable (X : Type u) [PartialOrder X]
+variable (X : Type u) [Preorder X]
 #synth (SmallCategory X)
 
 example (a b : X) (h : a ≤ b) : a ⟶ b := h.hom
